@@ -3,17 +3,17 @@ import {ApiError} from "../utils/ApiError.js"
 import { Company } from "../models/company.model.js"
 import { ApiResponse } from "../utils/ApiResponse.js";
 
-// const generateAccessTokens = async(userId) =>{
-//     try {
-//         const user = await User.findById(userId)
-//         const accessToken = user.generateAccessToken()
+const generateAccessTokens = async(userId) =>{
+    try {
+        const company = await Company.findById(userId)
+        const accessToken = company.generateAccessToken()
 
-//         return accessToken
+        return accessToken
 
-//     } catch (error) {
-//         throw new ApiError(500, "Something went wrong while access token")
-//     }
-// }
+    } catch (error) {
+        throw new ApiError(500, "Something went wrong while access token")
+    }
+}
 
 const registerCompany = asyncHandler( async (req, res) => {
     const {companyName, email, password } = req.body
@@ -51,51 +51,52 @@ const registerCompany = asyncHandler( async (req, res) => {
 
 } )
 
-// const loginUser = asyncHandler(async (req, res) =>{
+const loginCompany = asyncHandler(async (req, res) =>{
 
-//     const {email, password} = req.body
-//     console.log(email);
+    const {email, password} = req.body
+    console.log(email);
 
-//     if (!email) {
-//         throw new ApiError(400, "email is required")
-//     }
+    if (!email) {
+        throw new ApiError(400, "email is required")
+    }
 
-//     const user = await User.findOne({email})
+    const company = await Company.findOne({email})
 
-//     if (!user) {
-//         throw new ApiError(404, "User does not exist")
-//     }
+    if (!company) {
+        throw new ApiError(404, "Company does not exist")
+    }
 
-//    const isPasswordValid = await user.isPasswordCorrect(password)
+   const isPasswordValid = await company.isPasswordCorrect(password)
 
-//    if (!isPasswordValid) {
-//     throw new ApiError(401, "Invalid user credentials")
-//     }
+   if (!isPasswordValid) {
+    throw new ApiError(401, "Invalid company credentials")
+    }
 
-//    const accessToken = await generateAccessTokens(user._id)
+   const accessToken = await generateAccessTokens(company._id)
 
-//     const loggedInUser = await User.findById(user._id).select("-password")
+    const loggedInCompany = await User.findById(company._id).select("-password")
 
-//     const options = {
-//         httpOnly: true,
-//         secure: true
-//     }
+    const options = {
+        httpOnly: true,
+        secure: true
+    }
 
-//     return res
-//     .status(200)
-//     .cookie("accessToken", accessToken, options)
-//     .json(
-//         new ApiResponse(
-//             200, 
-//             {
-//                 user: loggedInUser, accessToken
-//             },
-//             "User logged In Successfully"
-//         )
-//     )
+    return res
+    .status(200)
+    .cookie("accessToken", accessToken, options)
+    .json(
+        new ApiResponse(
+            200, 
+            {
+                company: loggedInCompany, accessToken
+            },
+            "Company logged In Successfully"
+        )
+    )
 
-// })
+})
 
 export {
-    registerCompany
+    registerCompany,
+    loginCompany
 }
