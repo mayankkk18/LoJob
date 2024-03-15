@@ -5,15 +5,20 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 
 
 
-const generateAccessTokens = async(userId) =>{
+const generateAccessAndRefreshTokens = async(userId) =>{
     try {
         const user = await User.findById(userId)
         const accessToken = user.generateAccessToken()
+        const refreshToken = user.generateRefreshToken()
 
-        return accessToken
+        user.refreshToken = refreshToken
+        await user.save({ validateBeforeSave: false })
+
+        return {accessToken, refreshToken}
+
 
     } catch (error) {
-        throw new ApiError(500, "Something went wrong while access token")
+        throw new ApiError(500, "Something went wrong while generating referesh and access token")
     }
 }
 
@@ -74,9 +79,9 @@ const loginUser = asyncHandler(async (req, res) =>{
     throw new ApiError(401, "Invalid user credentials")
     }
 
-   const accessToken = await generateAccessTokens(user._id)
+   const {accessToken, refreshToken} = await generateAccessAndRefreshTokens(user._id)
 
-    const loggedInUser = await User.findById(user._id).select("-password")
+    const loggedInUser = await User.findById(user._id).select("-password -refreshToken")
 
     const options = {
         httpOnly: true,
@@ -86,6 +91,7 @@ const loginUser = asyncHandler(async (req, res) =>{
     return res
     .status(200)
     .cookie("accessToken", accessToken, options)
+    .cookie("refreshToken", refreshToken, options)
     .json(
         new ApiResponse(
             200, 
@@ -99,7 +105,17 @@ const loginUser = asyncHandler(async (req, res) =>{
 })
 
 const logoutUser = asyncHandler(async(req, res) => {
-    await User.findById(req.user._id)
+    await User.findByIdAndUpdate(
+        req.user._id,
+        {
+            $unset: {
+                refreshToken: 1 // this removes the field from document
+            }
+        },
+        {
+            new: true
+        }
+    )
 
     const options = {
         httpOnly: true,
@@ -109,12 +125,30 @@ const logoutUser = asyncHandler(async(req, res) => {
     return res
     .status(200)
     .clearCookie("accessToken", options)
+    .clearCookie("refreshToken", options)
     .json(new ApiResponse(200, {}, "User logged Out"))
+})
+
+const subscribeCompany = asyncHandler(async(req, res) => {
+    const user = await User.findById(req.user._id)
+    const company = req.params.companyId
+    if (user.subs.includes(company)) {
+        throw new ApiError(409, "Comapany already subscribed")
+    }
+    
+    user.subs.push(company);
+    await user.save();
+    
+
+    return res
+    .status(200)
+    .json(new ApiResponse(200, user, "Company added to subs"))
 })
 
 
 export {
     registerUser,
     loginUser,
-    logoutUser
+    logoutUser,
+    subscribeCompany
 }
