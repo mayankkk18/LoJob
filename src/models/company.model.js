@@ -19,6 +19,7 @@ const companySchema = new Schema({
     refreshToken: {
         type: String
     }
+    
 },{
     timestamps:true
 });

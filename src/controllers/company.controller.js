@@ -3,15 +3,20 @@ import {ApiError} from "../utils/ApiError.js"
 import { Company } from "../models/company.model.js"
 import { ApiResponse } from "../utils/ApiResponse.js";
 
-const generateAccessTokens = async(userId) =>{
+const generateAccessAndRefreshTokens = async(companyId) =>{
     try {
-        const company = await Company.findById(userId)
+        const company = await Company.findById(companyId)
         const accessToken = company.generateAccessToken()
+        const refreshToken = company.generateRefreshToken()
 
-        return accessToken
+        company.refreshToken = refreshToken
+        await company.save({ validateBeforeSave: false })
+
+        return {accessToken, refreshToken}
+
 
     } catch (error) {
-        throw new ApiError(500, "Something went wrong while access token")
+        throw new ApiError(500, "Something went wrong while generating referesh and access token")
     }
 }
 
@@ -72,9 +77,9 @@ const loginCompany = asyncHandler(async (req, res) =>{
     throw new ApiError(401, "Invalid company credentials")
     }
 
-   const accessToken = await generateAccessTokens(company._id)
+    const {accessToken, refreshToken} = await generateAccessAndRefreshTokens(company._id)
 
-    const loggedInCompany = await User.findById(company._id).select("-password")
+    const loggedInCompany = await Company.findById(company._id).select("-password -refreshToken")
 
     const options = {
         httpOnly: true,
@@ -84,11 +89,12 @@ const loginCompany = asyncHandler(async (req, res) =>{
     return res
     .status(200)
     .cookie("accessToken", accessToken, options)
+    .cookie("refreshToken", refreshToken, options)
     .json(
         new ApiResponse(
             200, 
             {
-                company: loggedInCompany, accessToken
+                user: loggedInCompany, accessToken
             },
             "Company logged In Successfully"
         )
@@ -96,7 +102,34 @@ const loginCompany = asyncHandler(async (req, res) =>{
 
 })
 
+const logoutCompany = asyncHandler(async (req, res) => {
+    await Company.findByIdAndUpdate(
+        req.company._id,
+        {
+            $unset: {
+                refreshToken: 1 // Remove the refreshToken field from the document
+            }
+        },
+        {
+            new: true // Return the updated document after update
+        }
+    );
+
+    const options = {
+        httpOnly: true,
+        secure: true
+    };
+
+    return res
+        .status(200)
+        .clearCookie("accessToken", options)
+        .clearCookie("refreshToken", options)
+        .json(new ApiResponse(200, {}, "Company logged Out"));
+});
+
+
 export {
     registerCompany,
-    loginCompany
+    loginCompany,
+    logoutCompany
 }
