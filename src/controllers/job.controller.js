@@ -40,6 +40,36 @@ const applyForJob = asyncHandler(async (req, res) => {
     // }
 });
 
+const createJob = asyncHandler(async (req, res) => {
+    const {title , description} = req.body
+    const company = req.company._id;
+
+
+    if (
+        [title , description].some((field) => field?.trim() === "")
+    ) {
+        throw new ApiError(400, "All fields are required")
+    }
+
+    const job = await Job.create({
+        title,
+        description,
+        company
+  
+    })
+
+    const createdJob = await Job.findById(job._id)
+
+    if (!createdJob) {
+        throw new ApiError(500, "Something went wrong while creating the job")
+    }
+
+    return res.status(201).json(
+        new ApiResponse(200, createdJob, "Job posted Successfully")
+    )
+})
+
 export {
-    applyForJob
+    applyForJob,
+    createJob
 } 

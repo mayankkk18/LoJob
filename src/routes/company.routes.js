@@ -4,13 +4,13 @@ import {
     loginCompany,
     logoutCompany
 } from "../controllers/company.controller.js";
-import { verifyJWT } from "../middlewares/auth.middleware.js";
+import { verifyJWTCo } from "../middlewares/auth.company.middleware.js";
 
 
 const router = Router()
 
 router.route("/register").post(registerCompany)
 router.route("/login").post(loginCompany)
-router.route("/logout").post(verifyJWT,  logoutCompany)
+router.route("/logout").post(verifyJWTCo,  logoutCompany)
 
 export default router

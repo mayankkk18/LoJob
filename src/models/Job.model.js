@@ -9,10 +9,10 @@ const jobSchema=new Schema({
         type: String,
         required: true
     },
-    dateposted: {
-        type: Date,
-        required: true
-    },
+    // dateposted: {
+    //     type: Date,
+    //     required: true
+    // },
     skills: {
         type: String
     },
