@@ -145,10 +145,31 @@ const subscribeCompany = asyncHandler(async(req, res) => {
     .json(new ApiResponse(200, user, "Company added to subs"))
 })
 
+const deleteUser = asyncHandler(async (req, res) => {
+    // Get the authenticated user's ID from the request object
+    const userId = req.user._id;
+
+    // Find the user in the database using the user's ID
+    const user = await User.findById(userId);
+
+    // Check if the user exists
+    if (!user) {
+        throw new ApiError(404, "User not found");
+    }
+
+    // Delete the user from the database
+    await User.findByIdAndDelete(userId);
+
+    // Return a success response
+    res.status(200).json({ message: "User deleted successfully" });
+});
+
+
 
 export {
     registerUser,
     loginUser,
     logoutUser,
-    subscribeCompany
+    subscribeCompany,
+    deleteUser
 }
