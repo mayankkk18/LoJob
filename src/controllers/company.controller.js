@@ -1,6 +1,7 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import {ApiError} from "../utils/ApiError.js"
 import { Company } from "../models/company.model.js"
+import { Job } from "../models/Job.model.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 
 const generateAccessAndRefreshTokens = async(companyId) =>{
@@ -127,9 +128,60 @@ const logoutCompany = asyncHandler(async (req, res) => {
         .json(new ApiResponse(200, {}, "Company logged Out"));
 });
 
+// const updateStatus = asyncHandler(async (req, res) => {
+//     const { jobId, applicantId } = req.params;
+//     const { status } = req.body;
+
+//     // Find the job by ID
+//     const job = await Job.findById(jobId);
+//     if (!job) {
+//         throw new ApiError(404, 'Job not found');
+//     }
+
+//     // Find the applicant in the job's applicants array
+//     const applicant = job.applicants.find(applicant => applicant.user.toString() === applicantId);
+//     if (!applicant) {
+//         throw new ApiError(404, 'Applicant not found for this job');
+//     }
+
+//     // Update the applicant's status
+//     applicant.status = status;
+//     await job.save();
+
+//     // Return success response
+//     return res.status(200).json(new ApiResponse(200, null, 'Applicant status updated successfully'));
+// });
+const updateStatus = asyncHandler(async (req, res) => {
+    const { jobId, userId } = req.params;
+    const { status } = req.body;
+
+    // Find the job by ID
+    const job = await Job.findById(jobId);
+    if (!job) {
+        throw new ApiError(404, 'Job not found');
+    }
+
+    // Find the applicant in the job's applicants array
+    const applicant = job.applicants.find(applicant => applicant.user.toString() === userId);
+    if (!applicant) {
+        throw new ApiError(404, 'Applicant not found for this job');
+    }
+
+    // Update the applicant's status
+    applicant.status = status;
+    await job.save();
+
+    // Return success response
+    return res.status(200).json(new ApiResponse(200, null, 'Applicant status updated successfully'));
+});
+
+
+
+
 
 export {
     registerCompany,
     loginCompany,
-    logoutCompany
+    logoutCompany,
+    updateStatus
 }
