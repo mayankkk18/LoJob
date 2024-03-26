@@ -38,6 +38,7 @@ const jobSchema=new Schema({
         },
         status: {
             type: String,
+            enum: ['Pending', 'Accepted', 'Rejected'], // Add possible status values
             default: 'Pending'
         },
         notification: {
