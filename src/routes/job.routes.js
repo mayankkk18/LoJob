@@ -1,7 +1,8 @@
 import { Router } from "express";
 import { 
     applyForJob,
-    createJob
+    createJob,
+    deleteJob
 } from "../controllers/job.controller.js";
 import { updateStatus } from "../controllers/company.controller.js";
 import { verifyJWTCo } from "../middlewares/auth.company.middleware.js";
@@ -13,6 +14,7 @@ const router = Router()
 router.route("/apply/:jobId").post(verifyJWT,applyForJob)
 router.route("/create").post(verifyJWTCo,createJob)
 router.route("/:jobId/users/:userId/status").put(verifyJWTCo,updateStatus)
+router.route("/:jobId/delete").delete(verifyJWTCo,deleteJob)
 
 // router.route("/getJob").get
 export default router
