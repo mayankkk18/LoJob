@@ -153,20 +153,20 @@ const updateStatus = asyncHandler(async (req, res) => {
     return res.status(200).json(new ApiResponse(200, null, 'Applicant status updated successfully'));
 });
 
-const deleteCompany = asyncHandler(async (req, res) => {
-    // Extract the company ID from the request parameters
-    const companyId = req.company._id; // Assuming req.company contains the authenticated company object
+// const deleteCompany = asyncHandler(async (req, res) => {
+//     // Extract the company ID from the request parameters
+//     const companyId = req.company._id; // Assuming req.company contains the authenticated company object
 
-    // Delete the company from the database
-    const deletedCompany = await Company.findByIdAndDelete(companyId);
+//     // Delete the company from the database
+//     const deletedCompany = await Company.findByIdAndDelete(companyId);
 
-    if (!deletedCompany) {
-        throw new ApiError(404, "Company not found");
-    }
+//     if (!deletedCompany) {
+//         throw new ApiError(404, "Company not found");
+//     }
 
-    // Return success response
-    return res.status(200).json(new ApiResponse(200, null, "Company deleted successfully"));
-});
+//     // Return success response
+//     return res.status(200).json(new ApiResponse(200, null, "Company deleted successfully"));
+// });
 
 
 
@@ -176,6 +176,6 @@ export {
     registerCompany,
     loginCompany,
     logoutCompany,
-    updateStatus,
-    deleteCompany
+    updateStatus
+    // deleteCompany
 }
