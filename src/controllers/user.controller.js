@@ -1,6 +1,8 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import {ApiError} from "../utils/ApiError.js"
 import { User} from "../models/user.model.js"
+import { Post } from "../models/Post.model.js";
+import { Job } from "../models/Job.model.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 
 
@@ -165,11 +167,115 @@ const deleteUser = asyncHandler(async (req, res) => {
 });
 
 
+const viewProfile = asyncHandler( async (req, res) => {
+    const userId = req.user._id;
+    const user = await User.findById(userId);
+    if (!user) {
+        throw new ApiError(404, "User not found");
+    }
+    return res
+    .status(200)
+    .json(user);
+} )
+
+const viewProfile2 = asyncHandler( async (req, res) => {
+    const {userId} = req.params;
+    const user = await User.findById(userId);
+    if (!user) {
+        throw new ApiError(404, "User not found");
+    }
+    return res
+    .status(200)
+    .json(user);
+} )
+
+const viewHomePost = asyncHandler( async (req, res) =>{
+    const pipeline = [
+        {
+            $lookup: {
+                from: 'companies', // Assuming your Company model is named 'Company'
+                localField: 'user',
+                foreignField: '_id',
+                as: 'companyDetails'
+            }
+        },
+        {
+            $unwind: {
+                path: '$companyDetails',
+                preserveNullAndEmptyArrays: true
+            }
+        },
+        {
+            $project: {
+                _id: 1,
+                
+                content: 1,
+                createdAt: 1,
+                updatedAt: 1,
+                companyDetails: 1
+                // 'companyDetails.name': 1,
+                // 'companyDetails.location': 1,
+                // 'companyDetails.description': 1
+                // Add other fields from Company model if needed
+          }
+     }
+];
+
+ const posts = await Post.aggregate(pipeline).sort({ createdAt: -1 });
+    return res.json(posts)
+
+})
+
+const viewHomeJob = asyncHandler( async (req, res) =>{
+    const pipeline = [
+        {
+            $lookup: {
+                from: 'companies', // Assuming your Company model is named 'Company'
+                localField: 'company',
+                foreignField: '_id',
+                as: 'companyDetails'
+            }
+        },
+        {
+            $unwind: {
+                path: '$companyDetails',
+                preserveNullAndEmptyArrays: true
+            }
+        },
+        {
+            $project: {
+                _id: 1,
+                title: 1,
+                description: 1,
+                skills: 1,
+                location: 1,
+                experience: 1,
+                basesalary: 1,
+                createdAt: 1,
+                updatedAt: 1,
+                companyDetails: 1
+                // 'companyDetails.name': 1,
+                // 'companyDetails.location': 1,
+                // 'companyDetails.description': 1
+                // Add other fields from Company model if needed
+          }
+     }
+];
+
+ const jobs = await Job.aggregate(pipeline).sort({ createdAt: -1 });
+return res.json(jobs)
+
+})
+
 
 export {
     registerUser,
     loginUser,
     logoutUser,
     subscribeCompany,
-    deleteUser
+    deleteUser,
+    viewProfile,
+    viewProfile2,
+    viewHomePost,
+    viewHomeJob
 }

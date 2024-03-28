@@ -1,4 +1,4 @@
-// const mongoose=require('mongoose');
+
 import mongoose, {Schema} from "mongoose";
 const jobSchema=new Schema({
     title:{
@@ -9,10 +9,7 @@ const jobSchema=new Schema({
         type: String,
         required: true
     },
-    // dateposted: {
-    //     type: Date,
-    //     required: true
-    // },
+
     skills: {
         type: String
     },
@@ -50,6 +47,4 @@ const jobSchema=new Schema({
     timestamps:true
 });
 
-// const Job = mongoose.model('Job',jobSchema);
-// module.exports=Job;
 export const Job= mongoose.model('Job',jobSchema);
