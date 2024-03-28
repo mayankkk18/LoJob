@@ -7,7 +7,10 @@ import {
     viewProfile,
     viewProfile2,
     viewHomePost,
-    viewHomeJob
+    viewHomeJob,
+    viewSubsPost,
+    viewSubsJob,
+    viewStatus
 } from "../controllers/user.controller.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 
@@ -22,6 +25,10 @@ router.route("/view").get(verifyJWT,viewProfile)
 router.route("/view/:userId").get(viewProfile2)
 router.route("/home/post").get(viewHomePost)
 router.route("/home/job").get(viewHomeJob)
+router.route("/subs/post").get(verifyJWT,viewSubsPost)
+router.route("/subs/job").get(verifyJWT,viewSubsJob)
+router.route("/status").get(verifyJWT,viewStatus)
+
 
 // router.route("/delete").delete(verifyJWT,deleteUser)
 

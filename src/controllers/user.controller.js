@@ -267,6 +267,72 @@ return res.json(jobs)
 
 })
 
+const viewSubsPost = asyncHandler(async(req,res)=>{
+    const userId = req.user._id; // Assuming user is authenticated and their ID is available in req.user
+
+        // Fetch user details including subscribed companies
+        const user = await User.findById(userId).populate('subs');
+
+        // Extract subscribed companies from user details
+        const subscribedCompanies = user.subs;
+
+        // Array to store posts from subscribed companies
+        let subscribedCompanyPosts = [];
+
+        // Loop through subscribed companies
+        for (const company of subscribedCompanies) {
+            // Fetch posts for each subscribed company
+            const posts = await Post.find({ user: company._id })
+            // .populate('comments');
+            subscribedCompanyPosts = subscribedCompanyPosts.concat(posts);
+        }
+
+        return res.status(200).json(subscribedCompanyPosts );
+
+    // const userId = req.user._id; // Assuming user is authenticated and their ID is available in req.user
+
+    // // Use aggregation pipeline to get posts from subscribed companies
+    // const subscribedCompanyPosts = await User.aggregate([
+    //     { $match: { _id: userId } }, // Match user by ID
+    //     { $lookup: { from: 'companies', localField: 'subs', foreignField: '_id', as: 'subscribedCompanies' } }, // Lookup subscribed companies
+    //     { $unwind: '$subscribedCompanies' }, // Unwind to access each subscribed company
+    //     { $lookup: { from: 'posts', localField: 'subscribedCompanies._id', foreignField: 'user', as: 'companyPosts' } }, // Lookup posts for each subscribed company
+    //     { $unwind: '$companyPosts' }, // Unwind to access each post
+    //     { $group: { _id: '$companyPosts._id', posts: { $push: '$companyPosts' } } } // Group posts by post ID
+    // ]);
+
+    // res.status(200).json({ success: true, posts: subscribedCompanyPosts });
+
+})
+
+const viewSubsJob = asyncHandler(async(req,res)=>{
+    const userId = req.user._id; // Assuming user is authenticated and their ID is available in req.user
+
+    // Fetch user details including subscribed companies
+    const user = await User.findById(userId).populate('subs');
+
+    // Extract subscribed companies from user details
+    const subscribedCompanies = user.subs;
+
+    // Array to store posts from subscribed companies
+    let subscribedCompanyJobs = [];
+
+    // Loop through subscribed companies
+    for (const company of subscribedCompanies) {
+        // Fetch posts for each subscribed company
+        const jobs = await Job.find({ company: company._id })
+        // .populate('comments');
+        subscribedCompanyJobs = subscribedCompanyJobs.concat(jobs);
+    }
+
+    return res.status(200).json(subscribedCompanyJobs );
+    
+})
+
+const viewStatus = asyncHandler(async(req,res)=>{
+    
+})
+
 
 export {
     registerUser,
@@ -277,5 +343,8 @@ export {
     viewProfile,
     viewProfile2,
     viewHomePost,
-    viewHomeJob
+    viewHomeJob,
+    viewSubsPost,
+    viewSubsJob,
+    viewStatus
 }
