@@ -3,7 +3,7 @@ import { ApiError } from '../utils/ApiError.js';
 import { User } from "../models/user.model.js";
 import { Job } from "../models/Job.model.js";
 import { Company } from "../models/company.model.js";
-import { Post } from "../models/post.model.js";
+import { Post } from "../models/Post.model.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 
 const createPost = asyncHandler(async (req, res) => {
