@@ -21,7 +21,7 @@ const applyForJob = asyncHandler(async (req, res) => {
     }
 
     // Check if the user has already applied for this job
-    const existingApplicant = job.applicants.find(applicant => applicant.user.toString() === userId);
+    const existingApplicant = job.applicants.find(applicant => applicant.user.equals(userId));
     if (existingApplicant) {
         throw new ApiError(400, 'User has already applied for this job');
     }
